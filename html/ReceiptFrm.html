@@ -1,0 +1,848 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coil Inventory Form</title>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+39&display=swap" rel="stylesheet">
+<style>
+  /* General Styling */
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #e6f7ff;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .form-container {
+    width: 100%;
+    max-width: 900px;
+    margin: auto;
+    padding: 30px;
+    background: #ffffff;
+    font-size: 64px;
+    border-top: 3px solid #28a745;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+  }
+
+  h2 {
+    font-size: 64px;
+    margin-bottom: 30px;
+    text-align: center;
+    color: #333;
+    font-weight: bold;
+  }
+
+  label {
+    font-size: 64px;
+    margin-top: 30px;
+    color: #004085;
+    font-weight: bold;
+    display: block;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  input[list="colorOptions"],
+  select {
+    font-size: 64px;
+    padding: 20px;
+    margin: 30px 0 40px;
+    width: 100%;
+    height: 120px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f0f8ff;
+    color: #333;
+    box-sizing: border-box;
+    font-weight: bold;
+  }
+
+  input[list="colorOptions"]::placeholder {
+    color: #888;
+    font-style: italic;
+  }
+
+  .radio-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    margin-top: 40px;
+    justify-content: flex-start;
+  }
+
+  .radio-grid label {
+    font-size: 64px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    cursor: pointer;
+  }
+
+  input[type="radio"] {
+    width: 64px;
+    height: 64px;
+  }
+
+  button {
+    font-size: 64px;
+    padding: 20px 40px;
+    margin: 40px auto 0;
+    width: 100%;
+    max-width: 900px;
+    height: 120px;
+    border: none;
+    border-radius: 8px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  button:hover {
+    background-color: #0056b3;
+  }
+
+  .button-dark {
+    background-color: #0056b3;
+    color: white;
+    border: 1px solid #003f7f;
+    font-weight: bold;
+  }
+
+  .button-dark:hover {
+    background-color: #00408f;
+    border-color: #002b5c;
+  }
+
+  .readonly-field {
+    background-color: #666699;
+    color: #D6D9DC;
+    border: 1px solid #ced4da;
+    pointer-events: none;
+    font-size: 64px;
+    font-weight: bold;
+    padding: 20px;
+    height: 120px;
+    box-sizing: border-box;
+  }
+
+  #popupMessage {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 40px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 64px;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    display: none;
+  }
+
+  /* Responsive Adjustments */
+  @media screen and (min-width: 768px) {
+    .form-container {
+      max-width: 900px;
+      padding: 30px;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    .form-container {
+      padding: 30px;
+      font-size: 64px;
+    }
+
+    h2,
+    label {
+      font-size: 64px;
+      margin-bottom: 30px;
+    }
+
+    input,
+    select {
+      font-size: 64px;
+      padding: 20px;
+      height: 120px;
+      margin-bottom: 40px;
+    }
+
+    .radio-grid label {
+      font-size: 64px;
+      width: 100%;
+      display: block;
+    }
+
+    input[type="radio"] {
+      width: 64px;
+      height: 64px;
+    }
+
+    button {
+      font-size: 64px;
+      padding: 20px 40px;
+      height: 120px;
+      margin-top: 40px;
+    }
+  }
+</style>
+
+
+</head>
+<body>
+  <div class="form-container">
+    v20
+    <h2>Coil Inventory</h2>
+    
+    <form id="coilForm">
+      <label for="lotNumber">Lot Number:</label>
+      <input type="text" id="lotNumber" name="lotNumber" placeholder="Enter lot number" onblur="loadCoilData()" required>
+
+      <div id="inventoryDataFields">
+        <label for="gauge">Gauge:</label>
+        <select id="gauge" name="gauge" required>
+          <option value="29">29</option>
+          <option value="26">26</option>
+          <option value="24">24</option>
+          <option value="22">22</option>
+          <option value="18">18</option>
+        </select>
+
+        <label for="colorInput">Color:</label>
+        <select id="colorInput" name="color" required></select>
+
+
+      </div>
+
+ <!-- Action Selection -->
+    <div id="actionFields" class="radio-grid">
+      <label>
+        <input 
+          type="radio" 
+          id="actionReceive" 
+          name="action" 
+          value="receive" 
+          onclick="showFields('receive')">
+        Receive
+      </label>
+      <label>
+        <input 
+          type="radio" 
+          id="actionReduce" 
+          name="action" 
+          value="reduce" 
+          onclick="showFields('reduce')">
+        Reduce
+      </label>
+      <label>
+        <input 
+          type="radio" 
+          id="actionSlit" 
+          name="action" 
+          value="slit" 
+          onclick="showFields('slit')">
+        Slit
+      </label>
+      <label>
+        <input 
+          type="radio" 
+          id="actionMove" 
+          name="action" 
+          value="move" 
+          onclick="showFields('move')">
+        Move
+      </label>
+      <label>
+        <input 
+        type="radio" 
+        id="actionCreate" 
+        name="action" 
+        value="create" 
+        onclick="showFields('create')">
+        Create Coil
+      </label>
+      <label>
+          <input 
+          type="radio" 
+          id="actionPrintLabel" 
+          name="action" 
+          value="printLabel" 
+          onclick="showFields('printLabel')">
+        Print Label
+      </label>
+
+    </div>
+
+
+  <div id="createFields" class="action-section">
+
+  <label for="widthCreate">Width in Inches:</label>
+  <input type="number" id="widthCreate" name="width" required>
+
+  <label for="lengthCreate">Length in Feet:</label>
+  <input type="number" id="lengthCreate" name="length" required>
+
+  <label for="locationCreate">Location:</label>
+  <select id="locationCreate" name="location" required>
+    <option value="CountryTowne">CountryTowne</option>
+    <option value="Benz">Benz</option>
+  </select>
+</div>
+
+
+      <div id="receiveFields" class="action-section">
+        <label for="length">Length in Feet:</label>
+        <input type="number" id="length" name="length">
+        <label for="width">Width in Inches:</label>
+        <input type="number" id="width" name="width">
+        <label for="weight">Weight:</label>
+        <input type="number" id="weight" name="weight">
+        <label for="location">Location:</label>
+        <select id="location" name="location" required>
+          <option value="CountryTowne">CountryTowne</option>
+          <option value="Benz">Benz</option>
+        </select>
+      </div>
+
+<div id="reduceFields" class="action-section">
+  <label for="balanceWeightReduce">Balance Weight:</label>
+  <input type="number" id="balanceWeightReduce" name="balanceWeightReduce" readonly>
+  <label for="balanceLengthReduce">Balance Length:</label>
+  <input type="text" id="balanceLengthReduce" name="balanceLengthReduce" readonly>
+  <label for="linearFeetReduced">Number of Linear Feet Reduced:</label>
+  <input type="number" id="linearFeetReduced" name="linearFeetReduced">
+</div>
+
+
+<div id="slitFields" class="action-section">
+  <label for="balanceWeightSlit">Balance Weight:</label>
+  <input type="number" id="balanceWeightSlit" name="balanceWeightSlit" readonly>
+  <label for="balanceLengthSlit">Balance Length:</label>
+  <input type="text" id="balanceLengthSlit" name="balanceLengthSlit" readonly>
+  <label for="slitWidth">Slit Width:</label>
+  <input type="number" id="slitWidth" name="slitWidth">
+  <label for="slitLength">Slit Length in Feet:</label>
+  <input type="number" id="slitLength" name="slitLength">
+  <label for="qty">Quantity:</label>
+  <input type="number" id="qty" name="qty">
+  <label for="locationSlit">Location:</label>
+  <select id="locationSlit" name="location">
+    <option value="CountryTowne">CountryTowne</option>
+    <option value="Benz">Benz</option>
+  </select>
+</div>
+
+      <div id="moveFields" class="action-section">
+        <label for="newLocation">New Location:</label>
+        <select id="newLocation" name="newLocation">
+          <option value="CountryTowne">CountryTowne</option>
+          <option value="Benz">Benz</option>
+        </select>
+      </div>
+
+      <button type="button" id="receiveButton" onclick="submitReceive()">Submit Receive</button>
+      <button type="button" id="reduceButton" onclick="submitReduce(false)">Submit Reduce</button>
+      <button type="button" id="reduceButtonP" class="button-dark" onclick="submitReduce(true)">Submit Reduce and Print</button>
+      <button type="button" id="slitButton" onclick="submitSlit(false)">Submit Slit</button>
+      <button type="button" id="slitButtonP" class="button-dark" onclick="submitSlit(true)">Submit Slit and Print</button>
+      <button type="button" id="moveButton" onclick="submitMove()">Submit Move</button>
+      <button type="button" id="createButton" onclick="submitCreate()">Submit Create Coil</button>
+      <button type="button" id="printLabelButton" class="button-dark" onclick="submitPrintLabel()">Print Label</button>
+
+
+    </form>
+    <!-- Success Message -->
+    <div id="popupMessage" class="popup-message" style="display: none;">Form submitted successfully!</div>
+  </div>
+  <script>
+    let userEmail = "";
+
+    window.onload = function () {
+      google.script.run.withSuccessHandler(email => userEmail = email).getEmail();
+      google.script.run.withSuccessHandler(populateColorOptions).getColorOptions();
+      document.querySelectorAll('.action-section').forEach(section => section.style.display = 'none');
+      document.querySelectorAll('button[type="button"]').forEach(button => button.style.display = 'none');
+    };
+
+    function populateColorOptions(colors) {
+      const colorDropdown = document.getElementById('colorInput');
+      colorDropdown.innerHTML = colors.map(color => `<option value="${color}">${color}</option>`).join('');
+    }
+
+function loadCoilData() {
+  const lotNumber = document.getElementById('lotNumber').value;
+  if (lotNumber) {
+    google.script.run
+      .withSuccessHandler((exists) => {
+        if (exists) {
+          // Fetch the coil data
+          google.script.run
+            .withSuccessHandler((data) => {
+              populateFormFields(data);
+
+              // Logic to determine which action to select
+              if (data.balanceLength > 0) {
+                // If balanceLength is available, default to Reduce
+                document.getElementById('actionPrintLabel').checked = true;
+                showFields('printLabel');
+              } else {
+                // If no balanceLength, default to Slit
+                document.getElementById('actionSlit').checked = true;
+                showFields('slit');
+              }
+            })
+            .getCoilData(lotNumber);
+        } else {
+          // If the lot number does not exist, default to Receive
+          document.getElementById('actionReceive').checked = true;
+          showFields('receive');
+        }
+      })
+      .checkLotNumberExists(lotNumber);
+  }
+}
+
+
+
+function populateFormFields(data) {
+  if (!data) {
+    showPopupMessage("Lot number not found.");
+    return;
+  }
+
+  // Populate common fields
+  document.getElementById('gauge').value = data.gauge || '';
+  document.getElementById('colorInput').value = data.color || '';
+
+  // Populate width (used across actions)
+  const widthField = document.getElementById('width');
+  if (widthField) widthField.value = data.width || '';
+
+  // Populate Reduce section
+  const balanceLengthReduce = document.getElementById('balanceLengthReduce');
+  const balanceWeightReduce = document.getElementById('balanceWeightReduce');
+  if (balanceLengthReduce) balanceLengthReduce.value = data.balanceLength || '';
+  if (balanceWeightReduce) balanceWeightReduce.value = data.balanceWeight || '';
+
+  // Populate Slit section
+  const balanceLengthSlit = document.getElementById('balanceLengthSlit');
+  const balanceWeightSlit = document.getElementById('balanceWeightSlit');
+  if (balanceLengthSlit) balanceLengthSlit.value = data.balanceLength || '';
+  if (balanceWeightSlit) balanceWeightSlit.value = data.balanceWeight || '';
+
+  console.log("Form fields populated:", data); // Debugging log
+}
+
+
+function showFields(action) {
+  // Hide all action sections
+  document.querySelectorAll('.action-section').forEach(section => section.style.display = 'none');
+  
+  // Hide all buttons initially
+  document.getElementById('receiveButton').style.display = 'none';
+  document.getElementById('reduceButton').style.display = 'none';
+  document.getElementById('reduceButtonP').style.display = 'none';
+  document.getElementById('slitButton').style.display = 'none';
+  document.getElementById('slitButtonP').style.display = 'none';
+  document.getElementById('moveButton').style.display = 'none';
+  document.getElementById('createButton').style.display = 'none';
+  document.getElementById('printLabelButton').style.display = 'none';
+
+  // Show the relevant action section
+  if (document.getElementById(`${action}Fields`)) {
+    document.getElementById(`${action}Fields`).style.display = 'block';
+  }
+
+  // Show the button corresponding to the selected action
+  if (action === 'receive') {
+    document.getElementById('receiveButton').style.display = 'inline-block';
+  } else if (action === 'reduce') {
+    document.getElementById('reduceButton').style.display = 'inline-block';
+    document.getElementById('reduceButtonP').style.display = 'inline-block';
+    document.getElementById('linearFeetReduced').style.display = 'inline-block'; // testing theory
+    document.querySelector('label[for="linearFeetReduced"]').style.display = 'inline-block'; // Show Label
+  } else if (action === 'slit') {
+    document.getElementById('slitButton').style.display = 'inline-block';
+    document.getElementById('slitButtonP').style.display = 'inline-block';
+  } else if (action === 'move') {
+    document.getElementById('moveButton').style.display = 'inline-block';
+  } else if (action === 'create') {
+    document.getElementById('createButton').style.display = 'inline-block';
+  } else if (action === 'printLabel') {
+    // Ensure balance fields are visible for Print Label
+    document.getElementById('reduceFields').style.display = 'block';
+    document.getElementById('linearFeetReduced').style.display = 'none'; // Hide for Print Label
+    document.querySelector('label[for="linearFeetReduced"]').style.display = 'none'; // Hide label
+    document.getElementById('printLabelButton').style.display = 'inline-block';
+  }
+}
+
+
+  function showPopupMessage(message) {
+    // Check if the popup already exists
+    let popup = document.getElementById('popupMessage');
+    if (!popup) {
+      // Create the popup element if it doesn't exist
+      popup = document.createElement('div');
+      popup.id = 'popupMessage';
+      document.body.appendChild(popup);
+    }
+
+    // Set the message and show the popup
+    popup.textContent = message;
+    popup.style.display = 'block';
+
+    // Automatically hide the popup after 3 seconds
+    setTimeout(() => {
+      popup.style.display = 'none';
+    }, 3000);
+  }
+
+function validateForm(action) {
+  const lotNumber = document.getElementById('lotNumber').value;
+  if (!lotNumber) {
+    showPopupMessage("Lot Number is required.");
+    return false;
+  }
+
+  if (action === 'receive') {
+    const length = document.getElementById('length').value;
+    const width = document.getElementById('width').value;
+    if (!length || !width) {
+      showPopupMessage("Length and Width are required for Receive.");
+      return false;
+    }
+  }
+  return true;
+}
+
+
+function submitCreate() {
+  const formData = {
+    gauge: document.getElementById('gauge').value, // Use existing gauge field
+    color: document.getElementById('colorInput').value, // Use existing color field
+    width: parseFloat(document.getElementById('widthCreate').value),
+    length: parseFloat(document.getElementById('lengthCreate').value),
+    location: document.getElementById('locationCreate').value,
+    email: userEmail
+  };
+
+  google.script.run
+    .withSuccessHandler((newCoil) => {
+      showPopupMessage(`Coil created: ${newCoil.lotNumber}`);
+printLabels([{
+  lotNumber: newCoil.lotNumber,
+  gauge: newCoil.gauge,
+  color: newCoil.color,
+  width: newCoil.width,
+  balanceLength: newCoil.balanceLength,
+  balanceWeight: '' // Optional: Add weight calculation logic if needed
+}]);
+
+      resetForm();
+    })
+    .createCoil(formData);
+}
+
+
+function submitReceive() {
+  if (!validateForm('receive')) return;
+  const formData = {
+    lotNumber: document.getElementById('lotNumber').value,
+    gauge: document.getElementById('gauge').value,
+    color: document.getElementById('colorInput').value,
+    length: parseFloat(document.getElementById('length').value),
+    width: parseFloat(document.getElementById('width').value),
+    weight: parseFloat(document.getElementById('weight').value),
+    location: document.getElementById('location').value,
+    email: userEmail
+  };
+  google.script.run
+    .withSuccessHandler(() => {
+      showPopupMessage("Receive submitted successfully.");
+      resetForm();
+    })
+    .submitReceive(formData);
+}
+
+
+function submitReduce(print = false) {
+  const lotNumber = document.getElementById('lotNumber');
+  const gauge = document.getElementById('gauge');
+  const color = document.getElementById('colorInput');
+  const width = document.getElementById('width');
+  const length = document.getElementById('length');
+  const balanceLength = document.getElementById('balanceLengthReduce');
+  const linearFeetReduced = document.getElementById('linearFeetReduced');
+
+  if (!lotNumber || !linearFeetReduced || !balanceLength) {
+    showPopupMessage("Required fields are missing. Please reload the page.");
+    return;
+  }
+
+  const formData = {
+    lotNumber: lotNumber.value,
+    gauge: gauge ? gauge.value : '',
+    color: color ? color.value : '',
+    width: width ? width.value : '',
+    length: length ? length.value : '',
+    linearFeetReduced: parseFloat(linearFeetReduced.value),
+    balanceLength: parseFloat(balanceLength.value),
+    email: userEmail
+  };
+
+  if (isNaN(formData.linearFeetReduced) || formData.linearFeetReduced <= 0) {
+    showPopupMessage("Please enter a valid reduction amount.");
+    return;
+  }
+
+  google.script.run
+    .withSuccessHandler(({ balanceLength: newBalance, balanceWeight }) => {
+      if (balanceLength) balanceLength.value = newBalance;
+
+      // Update label printing dynamically with balance weight
+      showPopupMessage("Reduce submitted successfully.");
+if (print) {
+  printLabels([{
+    lotNumber: formData.lotNumber,
+    gauge: formData.gauge,
+    color: formData.color,
+    width: formData.width,
+    balanceLength: newBalance,
+    balanceWeight: balanceWeight
+  }]);
+}
+
+      resetForm();
+    })
+    .withFailureHandler(error => {
+      console.error("Error during Reduce submission:", error);
+      showPopupMessage("An error occurred. Please try again.");
+    })
+    .submitReduce(formData);
+}
+
+
+
+
+function submitSlit(print = false) {
+  const lotNumber = document.getElementById('lotNumber');
+  const gauge = document.getElementById('gauge');
+  const color = document.getElementById('colorInput');
+  const width = document.getElementById('width');
+  const balanceLength = document.getElementById('balanceLengthSlit'); // Updated ID
+  const balanceWeight = document.getElementById('balanceWeightSlit'); // Updated ID
+  const slitWidth = document.getElementById('slitWidth');
+  const slitLength = document.getElementById('slitLength');
+  const qty = document.getElementById('qty');
+  const locationSlit = document.getElementById('locationSlit');
+
+  if (!lotNumber || !slitLength || !qty || !balanceLength) {
+    showPopupMessage("Required fields are missing. Please reload the page.");
+    return;
+  }
+
+  const formData = {
+    lotNumber: lotNumber.value,
+    gauge: gauge ? gauge.value : '',
+    color: color ? color.value : '',
+    width: width ? width.value : '',
+    balanceLength: parseFloat(balanceLength.value),
+    balanceWeight: balanceWeight ? balanceWeight.value : '',
+    slitWidth: slitWidth ? slitWidth.value : '',
+    slitLength: slitLength ? slitLength.value : '',
+    qty: qty ? qty.value : '',
+    location: locationSlit ? locationSlit.value : '',
+    email: userEmail
+  };
+
+  google.script.run
+    .withSuccessHandler((createdCoils) => {
+      showPopupMessage("Slit submitted successfully.");
+
+if (print) {
+  printLabels(createdCoils); // New method
+}
+
+
+      resetForm(); // Reset the form after submission
+    })
+    .submitSlit(formData);
+}
+
+
+
+function submitMove() {
+  const formData = {
+    lotNumber: document.getElementById('lotNumber').value,
+    newLocation: document.getElementById('newLocation').value,
+    email: userEmail
+  };
+  google.script.run.submitMove(formData);
+  showPopupMessage("Move submitted successfully.");
+  resetForm(); // Reset the form after submission
+ }
+
+function submitPrintLabel() {
+  const lotNumber = document.getElementById('lotNumber').value;
+
+  if (!lotNumber) {
+    showPopupMessage("Please enter or scan a Lot Number.");
+    return;
+  }
+
+  google.script.run
+    .withSuccessHandler((coilData) => {
+      if (coilData) {
+        // Populate fields with the correct balance weight and length
+        document.getElementById('balanceWeightReduce').value = coilData.balanceWeight || '';
+        document.getElementById('balanceLengthReduce').value = coilData.balanceLength || '';
+
+        // Print the label
+printLabels([{
+  lotNumber: lotNumber,
+  gauge: coilData.gauge,
+  color: coilData.color,
+  width: coilData.width,
+  balanceLength: coilData.balanceLength,
+  balanceWeight: coilData.balanceWeight
+}]);
+
+
+        // Show success message
+        showPopupMessage("Label printed successfully.");
+        resetForm();
+      } else {
+        showPopupMessage("Lot Number not found.");
+      }
+    })
+    .getCoilData(lotNumber);
+}
+
+
+function printLabels(labels) {
+  // Open a new tab for printing
+  const printWindow = window.open('', '_blank');
+
+  // Generate the HTML content for multiple labels
+  const labelHTML = labels.map(label => `
+    <div class="label">
+      <p class="header">Printed on: ${new Date().toLocaleDateString()}</p>
+      <div class="content">
+        <p>Gauge: ${label.gauge}</p>
+        <p>Color: ${label.color}</p>
+        <p>Width: ${label.width}"</p>
+        <p>Balance L: ${parseFloat(label.balanceLength).toFixed(2)} ft</p>
+        <p>Balance Wt: ${parseFloat(label.balanceWeight).toFixed(2)} lbs</p>
+      </div>
+      <p class="barcode">*${label.lotNumber}*</p>
+      <p class="footer">Lot #: ${label.lotNumber}</p>
+    </div>
+  `).join('<div class="page-break"></div>');
+
+  // Write the HTML content to the new tab
+  printWindow.document.write(`
+    <html>
+    <head>
+      <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+39&display=swap" rel="stylesheet">
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          margin: 0;
+          padding: 0;
+        }
+        .label {
+          width: 3.8in;
+          height: 5.8in;
+          border: 1px solid #000;
+          margin: auto;
+          padding: 20px;
+          box-sizing: border-box;
+          page-break-after: always;
+        }
+        .header {
+          font-size: 16px;
+          text-align: right;
+        }
+        .content {
+          font-size: 24px;
+          line-height: 1.2;
+          font-weight: bold;
+        }
+.barcode {
+  font-family: 'Libre Barcode 39', cursive;
+  font-size: 40px;
+  letter-spacing: 2px;
+  text-align: center;
+  display: block;
+  transform: scale(1, 3);
+  transform-origin: top;
+  margin: 60px;
+}
+
+.footer {
+  font-size: 24px;
+  text-align: center;
+  margin: 0 auto;
+}
+
+        .page-break {
+          page-break-after: always;
+        }
+      </style>
+    </head>
+    <body>${labelHTML}</body>
+    </html>
+  `);
+
+  // Ensure the font is loaded before printing
+  printWindow.document.close();
+
+  // Add a listener to trigger print after the font is loaded
+  printWindow.onload = function () {
+    setTimeout(() => {
+      printWindow.print();
+    }, 500); // Small delay to ensure the font loads
+  };
+}
+
+
+
+
+function resetForm() {
+  document.getElementById('coilForm').reset();
+  document.getElementById('lotNumber').focus(); // Auto-focus
+  google.script.run.withSuccessHandler(populateColorOptions).getColorOptions();
+
+
+/*
+
+  // Reload lot number for convenience
+  if (lotNumber) {
+    document.getElementById('lotNumber').value = lotNumber;
+    loadCoilData();
+  } 
+*/
+
+}
+
+  </script>
+</body>
+</html>
+
+     
